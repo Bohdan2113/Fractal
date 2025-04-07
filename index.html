@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+
+    <title>Fractals</title>
+  </head>
+  <body>
+    <section id="home">
+      <div id="create-wrapper">
+        <h2 class="text-edit">New fractal</h2>
+        <div id="fnew-collection">
+          <button class="create-block-but" onclick="CreateProjectBut()">
+            <p class="fractal-name text-edit">Фрактал Мінковсього</p>
+            <div class="create-fractal-plus">+</div>
+          </button>
+          <button class="create-block-but" onclick="CreateProjectBut()">
+            <p class="fractal-name text-edit">Фрактал ctg<sup>2</sup>(z)+c</p>
+            <div class="create-fractal-plus">+</div>
+          </button>
+        </div>
+      </div>
+      <div id="recent-wrapper">
+        <h2 class="text-edit">Recent</h2>
+        <div id="frecent-collection"></div>
+      </div>
+    </section>
+
+    <section id="work">
+      <div class="work-header">
+        <button id="to-home-page-but" onclick="ToHomeBut()" title="Home">
+          <img src="/Images/Logo.png" alt="Home" />
+        </button>
+        <button id="save-as-but" onclick="SaveAsBut()" title="Save as">
+          <img src="/Images/SaveAs.png" alt="SaveAs" />
+        </button>
+      </div>
+      <div class="work-section">
+        <div id="for-canvas">
+          <canvas id="myCanvas"></canvas>
+        </div>
+        <div id="control-container">
+          <h2>Fractal name</h2>
+          <div id="params-container"></div>
+          <div id="control-buttons">
+            <button id="clear-all-but" onclick="ClearFractalBut()">
+              Clear
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
+</html>
