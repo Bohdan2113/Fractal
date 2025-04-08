@@ -12,12 +12,18 @@
       <div id="create-wrapper">
         <h2 class="text-edit">New fractal</h2>
         <div id="fnew-collection">
-          <button class="create-block-but" onclick="CreateProjectBut()">
-            <p class="fractal-name text-edit">Фрактал Мінковсього</p>
+          <button
+            class="create-block-but"
+            onclick="CreateProjectBut(FractalType.MINKOVSKOGO)"
+          >
+            <p class="fractal-name text-edit">Fractal Minkovskogo</p>
             <div class="create-fractal-plus">+</div>
           </button>
-          <button class="create-block-but" onclick="CreateProjectBut()">
-            <p class="fractal-name text-edit">Фрактал ctg<sup>2</sup>(z)+c</p>
+          <button
+            class="create-block-but"
+            onclick="CreateProjectBut(FractalType.ALGEBRAICAL)"
+          >
+            <p class="fractal-name text-edit">Agebraical fractal</p>
             <div class="create-fractal-plus">+</div>
           </button>
         </div>
@@ -42,11 +48,23 @@
           <canvas id="myCanvas"></canvas>
         </div>
         <div id="control-container">
-          <h2>Fractal name</h2>
-          <div id="params-container"></div>
+          <div class="name-input-group input-group">
+            <label>Type: </label>
+            <input type="text" id="fractal-type" name="type" readonly />
+          </div>
+          <div class="name-input-group input-group">
+            <label>Name: </label>
+            <input type="text" id="fractal-name" name="type" />
+          </div>
+          <div id="params-container">
+            <form id="params-form"></form>
+          </div>
           <div id="control-buttons">
-            <button id="clear-all-but" onclick="ClearFractalBut()">
-              Clear
+            <button id="clear-fractal-but" onclick="ClearFractalBut()">
+              Clear fractal
+            </button>
+            <button id="create-fractal-but" onclick="CreateFractalBut()">
+              Create
             </button>
           </div>
         </div>

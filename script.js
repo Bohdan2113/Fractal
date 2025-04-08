@@ -1,12 +1,18 @@
 class Fractal {
-  constructor(id, unitCount) {
+  constructor(id, type, unitCount = baseUnitCount, name = null) {
     this.id = id;
+    this.type = type;
     this.systemUnitCount = unitCount;
+    this.name = name ? name : `Fractal-${this.id}`;
   }
   Clear() {
-    this.systemUnitCount = 50;
+    this.systemUnitCount = baseUnitCount;
   }
 }
+const FractalType = {
+  MINKOVSKOGO: "Minkovskogo",
+  ALGEBRAICAL: "Algebraical",
+};
 
 const $ = document.querySelector.bind(document);
 let fractalList = [];
@@ -274,23 +280,18 @@ window.onload = function () {
 //   };
 // }
 
-function CreateProjectBut() {
+function CreateProjectBut(fractalType) {
   const lastfractalId = fractalList?.length ? fractalList.at(-1).id : -1;
 
-  currentFractal = new Fractal(lastfractalId + 1, baseUnitCount);
-  fractalList.push(currentFractal);
-  CreateProjectInstance(currentFractal);
-  ToLocalStorage(currentFractal);
+  const newFractal = new Fractal(lastfractalId + 1, fractalType);
+  fractalList.push(newFractal);
+  CreateProjectInstance(newFractal);
+  ToLocalStorage(newFractal);
 
-  Redraw($("#myCanvas"), currentFractal);
-  ToogleBlocks($("#work"), $("#home"));
+  OpenProject(`fractal_${newFractal.id}`);
 }
 function OpenRecentBut(id_str) {
-  const savedId = parseInt(id_str.match(/\d+/)[0], 10);
-  currentFractal = fractalList.find((f) => f.id === savedId);
-
-  Redraw($("#myCanvas"), currentFractal);
-  ToogleBlocks($("#work"), $("#home"));
+  OpenProject(id_str);
 }
 function DeleteSavedBut(id_str) {
   event.stopPropagation();
@@ -308,10 +309,10 @@ function DeleteSavedBut(id_str) {
 function ToHomeBut() {
   UpdatePreviewCanvas(currentFractal);
   UpdateInLocalStorage(currentFractal);
-  currentFractal = null;
 
   ToogleBlocks($("#home"), $("#work"));
   ClearWork();
+  currentFractal = null;
 }
 function SaveAsBut() {
   UpdatePreviewCanvas(currentFractal);
@@ -325,8 +326,18 @@ function SaveAsBut() {
 }
 function ClearFractalBut() {
   currentFractal.Clear();
+  FillFormValues(currentFractal);
+
+  Redraw($("#myCanvas"), currentFractal);
+  UpdatePreviewCanvas(currentFractal);
   UpdateInLocalStorage(currentFractal);
-  ClearWork();
+}
+function CreateFractalBut() {
+  ReadFormValues(currentFractal);
+
+  Redraw($("#myCanvas"), currentFractal);
+  UpdatePreviewCanvas(currentFractal);
+  UpdateInLocalStorage(currentFractal);
 }
 
 function ToogleBlocks(block1, block2) {
@@ -336,15 +347,15 @@ function ToogleBlocks(block1, block2) {
 function CreateProjectInstance(fractal) {
   const parent = $("#frecent-collection");
   const newProject = document.createElement("div");
-  const fractalId = `fractal_${fractal.id}`;
+  const projectId = `fractal_${fractal.id}`;
 
-  newProject.id = fractalId;
+  newProject.id = projectId;
   newProject.className = "recent-block";
-  newProject.setAttribute("onclick", `OpenRecentBut('${fractalId}')`);
+  newProject.setAttribute("onclick", `OpenRecentBut('${projectId}')`);
   newProject.innerHTML = `
     <div class="fsaved-header">
-      <h3 class="text-edit">Fractal_${fractal.id}</h3>
-      <button class="fdelete-saved" onclick="DeleteSavedBut('${fractalId}')">
+      <h3 class="text-edit">${fractal.name}</h3>
+      <button class="fdelete-saved" onclick="DeleteSavedBut('${projectId}')">
         <img src="/Images/bin.png" alt="Delete" />
       </button>
     </div>
@@ -353,6 +364,23 @@ function CreateProjectInstance(fractal) {
 
   parent.appendChild(newProject);
   UpdatePreviewCanvas(fractal);
+}
+function FillFormValues(fractal) {
+  $("#fractal-type").value = fractal.type;
+  $("#fractal-name").value = fractal.name;
+}
+function ReadFormValues(fractal) {
+  const fractalName = $("#fractal-name").value;
+  if (fractalName === "") fractalName = fractalName.value = "noname";
+  fractal.name = fractalName;
+}
+function OpenProject(projectId_str) {
+  const savedId = parseInt(projectId_str.match(/\d+/)[0], 10);
+  currentFractal = fractalList.find((f) => f.id === savedId);
+  FillFormValues(currentFractal);
+
+  Redraw($("#myCanvas"), currentFractal);
+  ToogleBlocks($("#work"), $("#home"));
 }
 // function SeeCurveBut() {
 //   const seeCanvas = $("#seeCanvas");
@@ -369,13 +397,16 @@ function CreateProjectInstance(fractal) {
 // }
 
 function ClearWork() {
-  const canvas = $("#myCanvas");
-  ClearCanvas(canvas);
-  DrawCoords(canvas, baseUnitCount);
+  ClearCanvas($("#myCanvas"));
+  ClearForm();
 }
 function ClearCanvas(canvas) {
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+function ClearForm() {
+  $("#fractal-type").value = "";
+  $("#fractal-name").value = "";
 }
 // function ClearmethodChoose() {
 //   const paramMethod = document.getElementById("params-method");
@@ -1105,7 +1136,13 @@ function DeleteFromStorage(fractalToDel) {
 }
 function LoadFractals() {
   return (JSON.parse(localStorage.getItem("fractals")) || []).map(
-    (fractal) => new Fractal(fractal.id, fractal.systemUnitCount)
+    (fractal) =>
+      new Fractal(
+        fractal.id,
+        fractal.type,
+        fractal.systemUnitCount,
+        fractal.name
+      )
   );
 }
 function ShowAllRecents() {
@@ -1113,6 +1150,7 @@ function ShowAllRecents() {
 }
 function UpdatePreviewCanvas(fractal) {
   const canvas = $(`#fractal_${fractal.id} canvas`);
+  $(`#fractal_${fractal.id} h3`).textContent = fractal.name;
 
   Redraw(canvas, fractal, 1);
 }
