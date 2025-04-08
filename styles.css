@@ -28,21 +28,6 @@ button:hover {
   font-size: 16px;
   font-family: Arial, Helvetica, sans-serif;
 }
-.input-group {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 30px;
-}
-.input-group input {
-  padding: 3px 10px;
-  font-size: 16px;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-}
-.input-group label {
-  font-weight: bold;
-}
 
 #home {
   display: flex;
@@ -193,8 +178,9 @@ button:hover {
 .work-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-left: 10px;
+  gap: 30px;
+  padding-left: 20px;
+  padding-top: 5px;
   height: 50px;
   width: 100%;
   border-bottom: 1px solid rgb(255, 255, 255);
@@ -209,7 +195,7 @@ button:hover {
   transform: scale(1.1);
 }
 .work-header img {
-  width: 35px;
+  width: 30px;
   height: auto;
 }
 .work-section {
@@ -235,7 +221,7 @@ button:hover {
 
   max-height: 100%;
 
-  padding: 6px 20px;
+  padding: 10px;
   border-radius: 8px;
   background: #f9f9f9;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -243,25 +229,116 @@ button:hover {
 #control-container .name-input-group {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+#control-container .name-input-group label {
+  font-weight: bold;
 }
 #control-container .name-input-group input {
   flex: 1;
-  max-width: 250px;
+  max-width: 230px;
+  padding: 3px 10px;
+  font-size: 16px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
 }
+
 #params-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   gap: 10px;
-  padding: 10px;
   border-radius: 8px;
   background: #f9f9f9;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 
   height: 100%;
-  overflow-y: auto;
   flex: 1;
 }
+#params-form,
+#algebraic-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  padding: 15px;
+
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+.inner-form-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.form-group p {
+  display: block;
+  width: 100%;
+}
+.form-group {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: 10px;
+  border-bottom: 0.5px solid black;
+}
+.input-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+#params-form label {
+  font-size: 16px;
+  color: #333;
+  min-width: 100px;
+  font-weight: bold;
+}
+.inner-form-group label {
+  min-width: 0 !important;
+}
+#params-form input[type="number"],
+#params-form input[type="color"],
+#params-form input[type="range"] {
+  font-size: 16px;
+  border: 1px solid #6f6f6f;
+  border-radius: 5px;
+}
+#params-form input[type="range"] {
+  width: 150px;
+  appearance: none;
+  background: rgb(58, 58, 58);
+  height: 5px;
+  cursor: pointer;
+}
+#params-form input[type="number"] {
+  padding: 5px 10px;
+  width: 70px;
+}
+#params-form input[type="color"] {
+  padding: 3px 5px;
+  width: 50px;
+  cursor: pointer;
+}
+#params-form .errInput-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+  display: none;
+}
+.formula {
+  margin-bottom: 30px;
+  border: 2px double black;
+  padding: 10px !important;
+}
+
 #control-buttons {
   display: flex;
   justify-content: space-between;
@@ -294,407 +371,3 @@ button:hover {
 #clear-fractal-but {
   background-color: #000000;
 }
-
-/* .error-message {
-  display: none;
-  color: red;
-  text-align: center;
-  font-size: 12px;
-} */
-/* 
-input[type="color"] {
-  padding: 3px;
-}
-input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  accent-color: #4688ce;
-  cursor: pointer;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-input[type="checkbox"]:hover {
-  box-shadow: 0 0 2px rgba(0, 123, 255, 0.5);
-}
-input[type="number"]:focus {
-  border-color: #007bff;
-} */
-
-/* #home-input {
-  gap: 40px;
-  font-size: 30px;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-}
-#home-input input {
-  font-size: 20px;
-}
-
-#for-canvas {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-}
-#clear-all-but,
-#see-curve-but {
-  background-color: #970305;
-  color: white;
-  font-size: 16px;
-}
-#see-curve-but {
-  background-color: #0b6910;
-}
-#clear-all-but:hover {
-  background-color: #7f0301;
-}
-#see-curve-but {
-  background-color: #0b6910;
-}
-
-
-
-.curve-editor {
-  padding: 5px 20px;
-}
-.input-method-group h3,
-.curve-editor label {
-  font-size: 18px;
-}
-.drawing-method {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.checkbox-method {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.points-container,
-#addpoint-container,
-.options-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 15px;
-  border: 2px solid #333;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 400px;
-  background: #f9f9f9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
-  flex: 2;
-}
-#addpoint-container {
-  display: none;
-}
-.points-container {
-  overflow-y: auto;
-}
-.points-header,
-.addpoint-header,
-.options-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  border-bottom: 2px solid #333;
-  height: 35px;
-  font-weight: bold;
-  font-size: 18px;
-  padding: 5px 10px;
-  margin-bottom: 10px;
-
-  position: sticky;
-  top: 0;
-  background: #f9f9f9;
-}
-.points-header button,
-.addpoint-header button,
-.options-header button {
-  width: 35px;
-  height: 25px;
-  padding: 0;
-  font-size: 22px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-.addpoint-header button span,
-.output-close span {
-  display: block;
-  transform: rotate(45deg);
-  font-size: 24px;
-  font-weight: bold;
-}
-.points-header button:hover,
-.addpoint-header button:hover,
-.options-header button:hover,
-.output-close:hover {
-  background-color: #aaa;
-}
-
-.points-list {
-  list-style-type: none;
-  height: 100%;
-  overflow-y: auto;
-}
-.points-list li {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  border: 0.5px solid #aaa;
-  border-radius: 8px;
-}
-.points-list li div {
-  display: flex;
-  gap: 10px;
-}
-.drag-over {
-  border: 2px dashed #007bff;
-  background-color: rgba(0, 123, 255, 0.1); 
-  transition: background-color 0.3s ease;
-}
-
-#point {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  gap: 10px;
-  padding: 10px;
-}
-.coords-input-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.coords-input-group label {
-  font-weight: bold;
-}
-.coords-input-group input {
-  width: 60px;
-  padding: 5px;
-  font-size: 16px;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  outline: none;
-  text-align: center;
-}
-
-.addpoint-buts {
-  display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  border-top: 2px solid #333;
-  padding: 5px;
-}
-.addpoint-buts button {
-  padding: 6px 12px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.cancel-add-but {
-  background: #d9534f;
-  color: white;
-  border: none;
-}
-.create-point-but {
-  background: #5cb85c;
-  color: white;
-  border: none;
-}
-.cancel-add-but:hover {
-  background: #c9302c;
-}
-.create-point-but:hover {
-  background: #449d44;
-}
-
-.options-container {
-  flex: 0;
-}
-.options-data {
-  max-height: 300px;
-  height: auto;
-  overflow-y: auto;
-  display: none;
-}
-.options-item {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 10px;
-  border: 1px solid #aaa;
-  border-radius: 6px;
-  background: #fff;
-}
-.options-item p {
-  font-size: 16px;
-  margin: 0;
-}
-.diapason-input-group {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.step-input-group {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 150px;
-  margin-top: 5px;
-}
-.diapason-input-group label,
-.step-input-group label,
-.info-text {
-  font-weight: bold;
-}
-.diapason-input-group input,
-.step-input-group input {
-  width: 60px;
-  padding: 5px;
-  font-size: 16px;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  outline: none;
-  text-align: center;
-}
-.diapason-input-group input:focus,
-.step-input-group input:focus {
-  border-color: #007bff;
-}
-.options-item button {
-  align-self: flex-end;
-  padding: 6px 12px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  border: none;
-}
-.show-points-y-but {
-  background: #5bc0de;
-  color: white;
-}
-.calculate-polinoms-but {
-  background: #f0ad4e;
-  color: white;
-}
-.show-points-y-but:hover {
-  background: #31b0d5;
-}
-.calculate-polinoms-but:hover {
-  background: #ec971f;
-}
-
-.modal-overlay,
-.modal-overlay-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5); 
-  display: none; 
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-.options-output {
-  background: #fff;
-  width: 400px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.modal-overlay.show,
-.modal-overlay-canvas.show {
-  display: flex;
-}
-.options-output.show,
-.curve-output.show {
-  opacity: 1;
-  transform: scale(1);
-}
-.options-output-header,
-.curve-output-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #ddd;
-  padding-bottom: 10px;
-  position: sticky;
-  top: 0;
-}
-.options-output-header h3,
-.curve-output-header h3 {
-  margin: 0;
-  font-size: 18px;
-}
-.output-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.options-output-data ul {
-  list-style: none;
-  padding: 10px 0;
-  margin: 0;
-}
-.options-output-data {
-  max-height: 300px;
-  overflow-y: auto;
-}
-.options-output-data ul li {
-  padding: 8px;
-  border-bottom: 1px solid #eee;
-}
-
-.curve-output {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.point-color {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 1px solid #000;
-  border-radius: 50%;
-  margin-right: 5px;
-}
-.button-edit,
-.button-delete,
-.button-seal {
-  padding: 3px;
-}
-.button-edit img,
-.button-delete img,
-.button-seal img {
-  width: 18px;
-  height: 18px;
-} */
