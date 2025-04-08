@@ -157,6 +157,7 @@ function ClearFractalBut() {
 function CreateFractalBut() {
   if (!ValidateForm("#params-form")) return;
   ReadFormValues(currentFractal);
+  console.log(currentFractal);
 
   Redraw($("#myCanvas"), currentFractal);
   UpdatePreviewCanvas(currentFractal);
@@ -218,8 +219,8 @@ function ReadFormValues(fractal) {
   fractal.color = $("#color").value;
   fractal.angle = parseInt($("#angle").value);
   fractal.lineW = parseInt($("#lineWidth").value);
-  fractal.realC = parseFloat($("#lineWidth").realC);
-  fractal.imagC = parseFloat($("#lineWidth").imagC);
+  fractal.realC = parseFloat($("#realC").value);
+  fractal.imagC = parseFloat($("#imagC").value);
 }
 function OpenProject(projectId_str) {
   const savedId = parseInt(projectId_str.match(/\d+/)[0], 10);
