@@ -898,21 +898,21 @@ function Redraw(canvas, fractal, scale = 1) {
 function DrawCoords(canvas, unitCount, scale) {
   const ctx = canvas.getContext("2d");
   ctx.scale(scale, scale);
-
-  const leftSizingLuft = canvas.width / 24;
-  const bottomSizingLuft = canvas.height / 18;
-  const shtrichSize = canvas.width / 60;
-  const betweenShrichCount = 3;
-  const numberShift = canvas.width / 180;
-  fontSize = canvas.width / 90;
+  const fontSize = canvas.width / 110;
   let precision = 0;
 
-  const centerX = leftSizingLuft;
-  const centerY = canvas.height - bottomSizingLuft;
+  const leftSizingLuft = canvas.width / 30;
+  const bottomSizingLuft = canvas.height / 26;
+  const shtrichSize = canvas.width / 120;
+  const betweenShrichCount = 3;
+  const numberShift = canvas.width / 180;
+
+  const centerX = (canvas.width + leftSizingLuft) / 2;
+  const centerY = (canvas.height - bottomSizingLuft) / 2;
   const xLength = canvas.width - leftSizingLuft;
-  const yLength = centerY;
-  const unitLength = Math.max(xLength, yLength) / unitCount;
-  const segmentLength = GetSegmentLength(unitCount, unitLength);
+  const yLength = canvas.height - bottomSizingLuft;
+  const unitLength = Math.max(xLength, yLength) / (unitCount * 2);
+  const segmentLength = GetSegmentLength(unitCount * 2, unitLength);
 
   ctx.beginPath(); // Fill with color
   ctx.fillStyle = "white";
@@ -922,10 +922,10 @@ function DrawCoords(canvas, unitCount, scale) {
   ctx.beginPath(); // coordinate system
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
-  ctx.moveTo(centerX, 0);
-  ctx.lineTo(centerX, canvas.height);
-  ctx.moveTo(0, centerY);
-  ctx.lineTo(canvas.width, centerY);
+  ctx.moveTo(leftSizingLuft, 0); // Verrtical line
+  ctx.lineTo(leftSizingLuft, canvas.height - bottomSizingLuft);
+  ctx.moveTo(leftSizingLuft, canvas.height - bottomSizingLuft); // Horizontal line
+  ctx.lineTo(canvas.width, canvas.height - bottomSizingLuft);
   ctx.stroke();
   ctx.closePath();
 
@@ -938,64 +938,78 @@ function DrawCoords(canvas, unitCount, scale) {
   ctx.stroke();
   ctx.closePath();
 
-  ctx.beginPath(); // Намалювати сітку на підписаних координатах
-  ctx.lineWidth = 0.2;
-  ctx.strokeStyle = "black";
-  DrawGrid(segmentLength);
-  ctx.stroke();
-  ctx.closePath();
+  // ctx.beginPath(); // Намалювати сітку на підписаних координатах
+  // ctx.lineWidth = 0.2;
+  // ctx.strokeStyle = "black";
+  // DrawGrid(segmentLength);
+  // ctx.stroke();
+  // ctx.closePath();
 
-  ctx.beginPath(); // Намалювати сітку на малих координатах
-  ctx.lineWidth = 0.1;
-  ctx.strokeStyle = "black";
-  DrawGrid(segmentLength / (betweenShrichCount + 1));
-  ctx.stroke();
-  ctx.closePath();
+  // ctx.beginPath(); // Намалювати сітку на малих координатах
+  // ctx.lineWidth = 0.1;
+  // ctx.strokeStyle = "black";
+  // DrawGrid(segmentLength / (betweenShrichCount + 1));
+  // ctx.stroke();
+  // ctx.closePath();
 
-  function GetSegmentLength() {
+  function GetSegmentLength(uCount, uLength) {
     const factors = [2, 2.5, 2];
     let index = 0;
     let baseLover = 10;
     let baseUpper = 20;
     let interval = 1;
 
-    if (unitCount < baseLover) {
+    if (uCount < baseLover) {
       do {
         baseLover /= factors[index];
         interval /= factors[index++];
         if (index >= factors.length) index = 0;
         if (index === 1) precision++;
-      } while (unitCount < baseLover);
+      } while (uCount < baseLover);
 
-      return interval * unitLength;
-    } else if (unitCount >= baseUpper) {
+      return interval * uLength;
+    } else if (uCount >= baseUpper) {
       do {
         interval *= factors[index++];
         if (index >= factors.length) index = 0;
         baseUpper *= factors[index];
-      } while (unitCount >= baseUpper);
+      } while (uCount >= baseUpper);
 
-      return interval * unitLength;
-    } else return interval * unitLength;
+      return interval * uLength;
+    } else return interval * uLength;
   }
   function DrawUnitsY(isNumerate) {
     const shtrichCount = Math.floor(yLength / segmentLength);
-    const startX = centerX - shtrichSize;
-    const endX = centerX;
+    const startX = leftSizingLuft - shtrichSize;
+    const endX = leftSizingLuft;
+    let isOutOfCanvas = false;
 
-    for (var i = 1; i <= shtrichCount; i++) {
+    for (var i = shtrichCount * -1; i <= shtrichCount; i++) {
       let Y = centerY - i * segmentLength;
+      if (Y > canvas.height - bottomSizingLuft) continue;
+      if (isOutOfCanvas && Y < 0) break;
 
       ctx.moveTo(startX, Y);
       ctx.lineTo(endX, Y);
 
       for (let j = 1; j <= betweenShrichCount; j++) {
-        ctx.moveTo(startX, Y + (j * segmentLength) / (betweenShrichCount + 1));
-        ctx.lineTo(
-          endX - 10,
-          Y + (j * segmentLength) / (betweenShrichCount + 1)
-        );
+        const y = Y + (j * segmentLength) / (betweenShrichCount + 1);
+        if (y > canvas.height - bottomSizingLuft) continue;
+
+        ctx.moveTo(startX + shtrichSize / 3, y);
+        ctx.lineTo(endX, y);
       }
+      if (i === shtrichCount)
+        for (let j = 1; j <= betweenShrichCount; j++) {
+          const y = Y - (j * segmentLength) / (betweenShrichCount + 1);
+          if (y < 0) {
+            isOutOfCanvas = true;
+            break;
+          }
+
+          ctx.moveTo(startX + shtrichSize / 3, y);
+          ctx.lineTo(endX, y);
+        }
 
       if (isNumerate) {
         const textX = endX - (numberShift + shtrichSize);
@@ -1014,23 +1028,36 @@ function DrawCoords(canvas, unitCount, scale) {
   }
   function DrawUnitsX(isNumerate) {
     const shtrichCount = Math.floor(xLength / segmentLength);
-    const startY = centerY + shtrichSize;
-    const endY = centerY;
-    const startNum = 0;
+    const startY = canvas.height - bottomSizingLuft + shtrichSize;
+    const endY = canvas.height - bottomSizingLuft;
+    let isOutOfCanvas = false;
 
-    for (var i = startNum + 1; i <= shtrichCount; i++) {
+    for (var i = shtrichCount * -1; i <= shtrichCount; i++) {
       let X = centerX + i * segmentLength;
+      if (X < leftSizingLuft) continue;
+      if (isOutOfCanvas && X > canvas.width) break;
 
       ctx.moveTo(X, startY);
       ctx.lineTo(X, endY);
 
       for (let j = 1; j <= betweenShrichCount; j++) {
-        ctx.moveTo(X - (j * segmentLength) / (betweenShrichCount + 1), startY);
-        ctx.lineTo(
-          X - (j * segmentLength) / (betweenShrichCount + 1),
-          endY + 10
-        );
+        const x = X - (j * segmentLength) / (betweenShrichCount + 1);
+        if (x < leftSizingLuft) continue;
+
+        ctx.moveTo(x, startY - shtrichSize / 3);
+        ctx.lineTo(x, endY);
       }
+      if (i === shtrichCount)
+        for (let j = 1; j <= betweenShrichCount; j++) {
+          const x = X + (j * segmentLength) / (betweenShrichCount + 1);
+          if (x > canvas.width) {
+            isOutOfCanvas = true;
+            break;
+          }
+
+          ctx.moveTo(x, startY - shtrichSize / 3);
+          ctx.lineTo(x, endY);
+        }
 
       if (isNumerate) {
         const textX = X;
@@ -1046,32 +1073,22 @@ function DrawCoords(canvas, unitCount, scale) {
         ctx.fillText(num, textX, textY);
       }
     }
-    if (isNumerate) {
-      const textX = centerX - numberShift * 2;
-      const textY = centerY + numberShift * 2;
-      ctx.fillStyle = "black";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "top";
-
-      const num = startNum;
-      ctx.fillText(num, textX, textY);
-    }
   }
-  function DrawGrid(gap) {
-    const lineHCount = canvas.height / (gap + 1);
-    const lineWCount = canvas.width / (gap + 1);
-    for (let i = 0; i <= lineHCount; i++) {
-      let _Y = centerY - i * gap;
+  // function DrawGrid(gap) {
+  //   const lineHCount = canvas.height / (gap + 1);
+  //   const lineWCount = canvas.width / (gap + 1);
+  //   for (let i = 0; i <= lineHCount; i++) {
+  //     let _Y = centerY - i * gap;
 
-      ctx.moveTo(centerX, _Y);
-      ctx.lineTo(canvas.width, _Y);
-    }
-    for (let i = 0; i <= lineWCount; i++) {
-      let X = centerX + i * gap;
-      ctx.moveTo(X, 0);
-      ctx.lineTo(X, centerY);
-    }
-  }
+  //     ctx.moveTo(centerX, _Y);
+  //     ctx.lineTo(canvas.width, _Y);
+  //   }
+  //   for (let i = 0; i <= lineWCount; i++) {
+  //     let X = centerX + i * gap;
+  //     ctx.moveTo(X, 0);
+  //     ctx.lineTo(X, centerY);
+  //   }
+  // }
 }
 // function DrawPoints(canvas, points, r = 4) {
 //   // Get canvas context
