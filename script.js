@@ -18,7 +18,7 @@ class Fractal {
     this.type = type;
     this.iterations = iterations;
     this.systemUnitCount = unitCount;
-    this.name = name ? name : `Fractal-${this.id}`;
+    this.name = name;
     this.x = x;
     this.y = y;
     this.length = length;
@@ -28,8 +28,57 @@ class Fractal {
     this.realC = realC;
     this.imagC = imagC;
   }
-  Clear() {
-    this.systemUnitCount = baseUnitCount;
+
+  static copy(other) {
+    if (!(other instanceof Fractal)) {
+      throw new Error("Expected Fractal instance");
+    }
+    return new Fractal(
+      other.id,
+      other.type,
+      other.iterations,
+      other.systemUnitCount,
+      other.name,
+      other.x,
+      other.y,
+      other.length,
+      other.color,
+      other.angle,
+      other.lineW,
+      other.realC,
+      other.imagC
+    );
+  }
+  init(other) {
+    if (!(other instanceof Fractal)) {
+      throw new Error("Expected Fractal instance");
+    }
+    this.id = other.id;
+    this.type = other.type;
+    this.iterations = other.iterations;
+    this.systemUnitCount = other.systemUnitCount;
+    this.name = other.name;
+    this.x = other.x;
+    this.y = other.y;
+    this.length = other.length;
+    this.color = other.color;
+    this.angle = other.angle;
+    this.lineW = other.lineW;
+    this.realC = other.realC;
+    this.imagC = other.imagC;
+  }
+}
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+class Section {
+  constructor(pStart, length, angle) {
+    this.pStart = pStart;
+    this.length = length;
+    this.angle = angle;
   }
 }
 const FractalType = {
@@ -40,6 +89,7 @@ const FractalType = {
 const $ = document.querySelector.bind(document);
 let fractalList = [];
 let currentFractal = null;
+let workFractal = null;
 let baseUnitCount = 30;
 const minUnitCount = 1;
 const maxUnitCount = 300;
@@ -59,19 +109,19 @@ window.onload = function () {
       event.preventDefault(); // щоб не прокручувалася сторінка
 
       const delta = Math.sign(event.deltaY); // 1 — вниз, -1 — вгору
-      let step = currentFractal.systemUnitCount / 30;
+      let step = workFractal.systemUnitCount / 30;
       if (delta > 0)
-        currentFractal.systemUnitCount = Math.max(
+        workFractal.systemUnitCount = Math.max(
           minUnitCount,
-          currentFractal.systemUnitCount - step
+          workFractal.systemUnitCount - step
         );
       else
-        currentFractal.systemUnitCount = Math.min(
+        workFractal.systemUnitCount = Math.min(
           maxUnitCount,
-          currentFractal.systemUnitCount + step
+          workFractal.systemUnitCount + step
         );
 
-      Redraw($("#myCanvas"), currentFractal);
+      Redraw($("#myCanvas"), workFractal);
     },
     { passive: false }
   );
@@ -89,12 +139,19 @@ window.onload = function () {
     field: field,
     errorId: `#error-message-${field.getAttribute("id")}`,
   }));
-  // Обробка неправильного введення
+  // Обробка введення (коректність і відображення змін)
   paramFields.forEach(({ field, errorId }) => {
     field.addEventListener("input", (event) =>
       hideErrorMessage(event, errorId)
     );
-    field.addEventListener("input", (event) => checkInterval(event, errorId));
+    field.addEventListener("input", (event) => {
+      checkInterval(event, errorId);
+      ChangeFractal();
+    });
+  });
+  $("#fractal-name").addEventListener("input", (event) => {
+    // const fractalName = $("#fractal-name").value;
+    workFractal.name = event.target.value;
   });
 };
 
@@ -129,16 +186,25 @@ function DeleteSavedBut(id_str) {
   }
 }
 function ToHomeBut() {
-  UpdatePreviewCanvas(currentFractal);
-  UpdateInLocalStorage(currentFractal);
-
+  if (workFractal && currentFractal) {
+    const isDifferent =
+      JSON.stringify(workFractal) !== JSON.stringify(currentFractal);
+    if (isDifferent) {
+      const saveChanges = confirm(
+        "Do you want to save changes before leaving?"
+      );
+      if (saveChanges) {
+        SaveFractalBut();
+      }
+    }
+  }
   ToogleBlocks($("#home"), $("#work"));
   ClearWork();
   currentFractal = null;
+  workFractal = null;
 }
 function SaveAsBut() {
-  UpdatePreviewCanvas(currentFractal);
-  UpdateInLocalStorage(currentFractal);
+  SaveFractalBut();
 
   const canvas = $("#myCanvas");
   const link = document.createElement("a");
@@ -146,22 +212,25 @@ function SaveAsBut() {
   link.href = canvas.toDataURL("image/png");
   link.click(); // відкриває стандартне вікно збереження
 }
-function ClearFractalBut() {
-  currentFractal.Clear();
-  FillFormValues(currentFractal);
+function ClearChangesBut() {
+  workFractal.init(currentFractal);
+  FillFormValues(workFractal);
 
-  Redraw($("#myCanvas"), currentFractal);
+  Redraw($("#myCanvas"), workFractal);
+}
+function SaveFractalBut() {
+  const index = fractalList.findIndex((f) => f === currentFractal);
+  if (index !== -1) fractalList[index] = workFractal;
+
+  currentFractal = workFractal;
   UpdatePreviewCanvas(currentFractal);
   UpdateInLocalStorage(currentFractal);
 }
-function CreateFractalBut() {
+function ChangeFractal() {
   if (!ValidateForm("#params-form")) return;
-  ReadFormValues(currentFractal);
-  console.log(currentFractal);
+  ReadFormValues(workFractal);
 
-  Redraw($("#myCanvas"), currentFractal);
-  UpdatePreviewCanvas(currentFractal);
-  UpdateInLocalStorage(currentFractal);
+  Redraw($("#myCanvas"), workFractal);
 }
 
 function ToogleBlocks(block1, block2) {
@@ -193,7 +262,7 @@ function FillFormValues(fractal) {
   ClearForm("#params-form");
 
   $("#fractal-type").value = fractal.type;
-  $("#fractal-name").value = fractal.name;
+  $("#fractal-name").value = fractal.name ? fractal.name : "noname";
 
   $("#startX").value = fractal.x;
   $("#startY").value = fractal.y;
@@ -209,7 +278,6 @@ function FillFormValues(fractal) {
 }
 function ReadFormValues(fractal) {
   const fractalName = $("#fractal-name").value;
-  if (fractalName === "") fractalName = fractalName.value = "noname";
   fractal.name = fractalName;
 
   fractal.x = parseFloat($("#startX").value);
@@ -225,10 +293,11 @@ function ReadFormValues(fractal) {
 function OpenProject(projectId_str) {
   const savedId = parseInt(projectId_str.match(/\d+/)[0], 10);
   currentFractal = fractalList.find((f) => f.id === savedId);
-  FillFormValues(currentFractal);
-  DisplayFormFields(currentFractal.type);
+  workFractal = Fractal.copy(currentFractal);
+  FillFormValues(workFractal);
+  DisplayFormFields(workFractal.type);
 
-  Redraw($("#myCanvas"), currentFractal);
+  Redraw($("#myCanvas"), workFractal);
   ToogleBlocks($("#work"), $("#home"));
 }
 function DisplayFormFields(type) {
@@ -858,17 +927,3 @@ function DrawFractalMinkovskogo(canvas, fractal, scale) {
   }
 }
 function DrawFractalAlgebraical(canvas, fractal, scale) {}
-
-class Point {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-}
-class Section {
-  constructor(pStart, length, angle) {
-    this.pStart = pStart;
-    this.length = length;
-    this.angle = angle;
-  }
-}
