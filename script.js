@@ -12,7 +12,9 @@ class Fractal {
     angle = 0,
     lineW = 1,
     realC = 0,
-    imagC = 0
+    imagC = 0,
+    bailout = 30,
+    resolution = 1
   ) {
     this.id = id;
     this.type = type;
@@ -27,6 +29,8 @@ class Fractal {
     this.lineW = lineW;
     this.realC = realC;
     this.imagC = imagC;
+    this.bailout = bailout;
+    this.resolution = resolution;
   }
 
   static copy(other) {
@@ -46,7 +50,9 @@ class Fractal {
       other.angle,
       other.lineW,
       other.realC,
-      other.imagC
+      other.imagC,
+      other.bailout,
+      other.resolution
     );
   }
   init(other) {
@@ -66,6 +72,8 @@ class Fractal {
     this.lineW = other.lineW;
     this.realC = other.realC;
     this.imagC = other.imagC;
+    this.bailout = other.bailout;
+    this.resolution = other.resolution;
   }
 }
 class Point {
@@ -226,12 +234,6 @@ function SaveFractalBut() {
   UpdatePreviewCanvas(currentFractal);
   UpdateInLocalStorage(currentFractal);
 }
-function ChangeFractal() {
-  if (!ValidateForm("#params-form")) return;
-  ReadFormValues(workFractal);
-
-  Redraw($("#myCanvas"), workFractal);
-}
 
 function ToogleBlocks(block1, block2) {
   block1.style.display = "flex";
@@ -273,8 +275,10 @@ function FillFormValues(fractal) {
   $("#angleValue").innerText = fractal.angle;
   $("#lineWidth").value = fractal.lineW;
   $("#lineWidthValue").innerText = fractal.lineW;
-  $("#lineWidth").value = fractal.realC;
-  $("#lineWidth").value = fractal.imagC;
+  $("#realC").value = fractal.realC;
+  $("#imagC").value = fractal.imagC;
+  $("#bailout").value = fractal.bailout;
+  $("#resolution").value = fractal.resolution;
 }
 function ReadFormValues(fractal) {
   const fractalName = $("#fractal-name").value;
@@ -289,6 +293,8 @@ function ReadFormValues(fractal) {
   fractal.lineW = parseInt($("#lineWidth").value);
   fractal.realC = parseFloat($("#realC").value);
   fractal.imagC = parseFloat($("#imagC").value);
+  fractal.bailout = parseFloat($("#bailout").value);
+  fractal.resolution = parseInt($("#resolution").value);
 }
 function OpenProject(projectId_str) {
   const savedId = parseInt(projectId_str.match(/\d+/)[0], 10);
@@ -299,6 +305,12 @@ function OpenProject(projectId_str) {
 
   Redraw($("#myCanvas"), workFractal);
   ToogleBlocks($("#work"), $("#home"));
+}
+function ChangeFractal() {
+  if (!ValidateForm("#params-form")) return;
+  ReadFormValues(workFractal);
+
+  Redraw($("#myCanvas"), workFractal);
 }
 function DisplayFormFields(type) {
   const form = $("#params-form");
@@ -316,16 +328,17 @@ function SetBoundaries(form, type) {
   const lengthField = form["length"];
   const startXField = form["startX"];
   const startYField = form["startY"];
+  const bailoutField = form["bailout"];
+  const resolutionField = form["resolution"];
+  const angleField = form["angle"];
+  const widthField = form["width"];
 
   if (type === "Algebraical") {
     iterationsField.min = 1;
-    iterationsField.max = 300;
-
-    lengthField.min = -maxUnitCount;
-    lengthField.max = maxUnitCount;
+    iterationsField.max = 700;
   } else if (type === "Minkovskogo") {
     iterationsField.min = 0;
-    iterationsField.max = 5;
+    iterationsField.max = 6;
   }
 
   startXField.min = -maxUnitCount;
@@ -333,6 +346,21 @@ function SetBoundaries(form, type) {
 
   startYField.min = -maxUnitCount / 2 - 23;
   startYField.max = maxUnitCount / 2 + 23;
+
+  lengthField.min = -maxUnitCount;
+  lengthField.max = maxUnitCount;
+
+  bailoutField.min = 0;
+  bailoutField.max = 1000;
+
+  resolutionField.min = 1;
+  resolutionField.max = 10;
+
+  angleField.min = 0;
+  angleField.max = 360;
+
+  widthField.min = 1;
+  widthField.max = 10;
 }
 
 function ClearWork() {
@@ -387,7 +415,7 @@ function ValidateForm(formId_str) {
 
     if (value > max || value < min) {
       paramFields[i].style.borderColor = "red";
-      const message = `${f.getAttribute(
+      const message = `${paramFields[i].getAttribute(
         "name"
       )}=${value} is out of range [${min}, ${max}]`;
       showErrorMessage(
@@ -477,6 +505,9 @@ function GetCoordSystemProportions(canvas, unitCount) {
     right: canvas.width,
     bottom: canvas.height - bottomSizingLuft,
     left: leftSizingLuft,
+
+    yUCount: yLength / 2 / unitLength,
+    xUCount: xLength / 2 / unitLength,
   };
 }
 function DrawCoords(canvas, unitCount) {
@@ -807,7 +838,9 @@ function LoadFractals() {
         fractal.angle,
         fractal.lineW,
         fractal.realC,
-        fractal.imagC
+        fractal.imagC,
+        fractal.bailout,
+        fractal.resolution
       )
   );
 }
@@ -926,4 +959,147 @@ function DrawFractalMinkovskogo(canvas, fractal, scale) {
     for (let sect of sections) recursive(sect, color, width, depth - 1);
   }
 }
-function DrawFractalAlgebraical(canvas, fractal, scale) {}
+function DrawFractalAlgebraical(canvas, fractal) {
+  const ctx = canvas.getContext("2d");
+  const box = GetCoordSystemProportions(canvas, fractal.systemUnitCount);
+  const eps = 10e-5;
+
+  // console.log(box);
+  // return;
+
+  const top = parseInt(box.top);
+  const bottom = parseInt(box.bottom);
+  const left = parseInt(box.left);
+  const right = parseInt(box.right);
+  const width = right - left;
+  const height = bottom - top;
+
+  const cre = fractal.realC;
+  const cim = fractal.imagC;
+  const c = { re: cre, im: cim };
+
+  const maxIter = fractal.iterations;
+  const zoomX = box.xUCount;
+  const zoomY = box.yUCount;
+  const threshold = fractal.bailout;
+  const step = fractal.resolution;
+  const colorScheme = fractal.color;
+  console.log(colorScheme);
+
+  const imgData = ctx.createImageData(width, height);
+  const data = imgData.data;
+
+  for (let py = 0; py < height; py += step) {
+    for (let px = 0; px < width; px += step) {
+      // Convert pixel to complex number
+      const x = (px - width / 2) * (zoomX / width);
+      const y = (py - height / 2) * (zoomY / height);
+      let z = { re: x, im: y };
+
+      let i = 0;
+      for (; i < maxIter; i++) {
+        try {
+          z = myFormula(z, c);
+          // z = victorFormula(z, c);
+        } catch (error) {
+          console.error(error.message);
+          break;
+        }
+        if (Math.abs(z.re) > threshold || Math.abs(z.im) > threshold) break;
+      }
+
+      const color = GetColor(i, colorScheme, maxIter);
+      for (let j = 0; j < step; j++) {
+        for (let k = 0; k < step; k++) {
+          const idx = 4 * ((py + j) * width + (px + k));
+          data[idx] = color.R; // R
+          data[idx + 1] = color.G; // G
+          data[idx + 2] = color.B; // B
+          data[idx + 3] = 255; // A
+        }
+      }
+    }
+  }
+
+  ctx.putImageData(imgData, left, top);
+
+  //Ітераційна формула
+  function myFormula(z, c) {
+    const ctgZ = ctgComplex(z); 
+    const squaredCtgZ = multiplyComplex(ctgZ, ctgZ); 
+    return addComplex(squaredCtgZ, c);
+  }
+  function victorFormula(z, c) {
+    const squaredZ = multiplyComplex(z, z); 
+    const ctgSquaredZ = ctgComplex(squaredZ); 
+    return addComplex(ctgSquaredZ, c);
+  }
+
+  // Додавання комплексних чисел
+  function addComplex(a, b) {
+    return { re: a.re + b.re, im: a.im + b.im };
+  }
+  // Функція для обчислення ctg(z)
+  function ctgComplex(a) {
+    const tanZ = tanComplex(a);
+    if (Math.abs(tanZ.im) < eps || Math.abs(tanZ.re) < eps)
+      throw new Error("tan(z) is too close to zero");
+    return { re: 1 / tanZ.re, im: -1 / tanZ.im };
+  }
+  // Множення комплексних чисел
+  function multiplyComplex(a, b) {
+    return {
+      re: a.re * b.re - a.im * b.im,
+      im: a.re * b.im + a.im * b.re,
+    };
+  }
+  // Тангенс комплексного числа
+  function tanComplex(a) {
+    const real = Math.tan(a.re) * Math.cosh(a.im);
+    const imaginary = Math.sinh(a.im) / Math.cos(a.re);
+    return { re: real, im: imaginary };
+  }
+
+  function GetColor(i, color, maxIter) {
+    if (i === maxIter) return { R: 0, G: 0, B: 0 };
+
+    const t = i;
+    const colorScheme = parseHexColor(color);
+    const kR = colorScheme.R;
+    const kG = colorScheme.G;
+    const kB = colorScheme.B;
+    return { R: (t * kR) % 255, G: (t * kG) % 255, B: (t * kB) % 255 };
+
+    // const t = i / maxIter;
+    // const variation = 255;
+    // const colorScheme = parseHexColor(color);
+    // const R = colorScheme.R + Math.sin(t * Math.PI * 2) * variation;
+    // const G = colorScheme.G + Math.cos(t * Math.PI * 2) * variation;
+    // const B = colorScheme.B + Math.sin(t * Math.PI * 4 + 1) * variation;
+    // return {
+    //   R: Math.max(0, Math.min(255, Math.round(R))),
+    //   G: Math.max(0, Math.min(255, Math.round(G))),
+    //   B: Math.max(0, Math.min(255, Math.round(B))),
+    // };
+  }
+  function parseHexColor(hex) {
+    // Прибираємо "#" якщо є
+    if (hex.startsWith("#")) {
+      hex = hex.slice(1);
+    }
+
+    // Якщо короткий формат (#abc), розширюємо
+    if (hex.length === 3) {
+      hex = hex
+        .split("")
+        .map((c) => c + c)
+        .join("");
+    }
+
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+
+    return { R: r, G: g, B: b };
+  }
+}

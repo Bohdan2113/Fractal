@@ -64,29 +64,15 @@
                 >
               </div>
 
-              <div class="form-group Algebraical Minkovskogo">
+              <div class="form-group Minkovskogo">
                 <div class="input-group">
                   <div class="inner-form-group">
                     <label for="startX">X:</label>
-                    <input
-                      type="number"
-                      id="startX"
-                      value="0"
-                      name="x"
-                      min="-250"
-                      max="250"
-                    />
+                    <input type="number" id="startX" name="x" />
                   </div>
                   <div class="inner-form-group">
                     <label for="startY">Y:</label>
-                    <input
-                      type="number"
-                      id="startY"
-                      value="0"
-                      name="y"
-                      min="-100"
-                      max="100"
-                    />
+                    <input type="number" id="startY" name="y" />
                   </div>
                 </div>
                 <p class="errInput-message" id="error-message-startX"></p>
@@ -97,21 +83,14 @@
                 <div class="input-group">
                   <div class="inner-form-group">
                     <label for="realC">Real c:</label>
-                    <input
-                      type="number"
-                      id="realC"
-                      value="0"
-                      step="0.01"
-                      name="realC"
-                    />
+                    <input type="number" id="realC" step="0.1" name="realC" />
                   </div>
                   <div class="inner-form-group">
                     <label for="imagC">Imagionary c:</label>
                     <input
                       type="number"
                       id="imagC"
-                      value="0"
-                      step="0.01"
+                      step="0.1"
                       name="imagionaryC"
                     />
                   </div>
@@ -123,29 +102,31 @@
               <div class="form-group Minkovskogo">
                 <div class="input-group">
                   <label for="length">Line length:</label>
-                  <input
-                    type="number"
-                    id="length"
-                    value="30"
-                    name="length"
-                    min="1"
-                    max="300"
-                  />
+                  <input type="number" id="length" name="length" />
                 </div>
                 <p class="errInput-message" id="error-message-length"></p>
+              </div>
+
+              <div class="form-group Algebraical">
+                <div class="input-group">
+                  <label for="bailout">Bailout:</label>
+                  <input type="number" id="bailout" name="bailout" />
+                </div>
+                <p class="errInput-message" id="error-message-bailout"></p>
+              </div>
+
+              <div class="form-group Algebraical">
+                <div class="input-group">
+                  <label for="resolution">Resolution:</label>
+                  <input type="number" id="resolution" name="resolution" />
+                </div>
+                <p class="errInput-message" id="error-message-resolution"></p>
               </div>
 
               <div class="form-group Algebraical Minkovskogo">
                 <div class="input-group">
                   <label for="iterations">Iterations:</label>
-                  <input
-                    type="number"
-                    id="iterations"
-                    value="4"
-                    name="iterations"
-                    min="0"
-                    max="6"
-                  />
+                  <input type="number" id="iterations" name="iterations" />
                 </div>
                 <p class="errInput-message" id="error-message-iterations"></p>
               </div>
@@ -153,7 +134,7 @@
               <div class="form-group Algebraical Minkovskogo">
                 <div class="input-group">
                   <label for="color">Color:</label>
-                  <input type="color" id="color" value="#000000" name="color" />
+                  <input type="color" id="color" name="color" />
                 </div>
                 <p class="errInput-message" id="error-message-color"></p>
               </div>
@@ -162,14 +143,7 @@
                 <div class="input-group">
                   <label for="angle">Angle:</label>
                   <div>
-                    <input
-                      type="range"
-                      id="angle"
-                      value="0"
-                      name="angle"
-                      min="0"
-                      max="360"
-                    />
+                    <input type="range" id="angle" name="angle" />
                     <span id="angleValue">0</span>
                   </div>
                 </div>
@@ -180,14 +154,7 @@
                 <div class="input-group">
                   <label for="lineWidth">Line width:</label>
                   <div>
-                    <input
-                      type="range"
-                      id="lineWidth"
-                      value="1"
-                      name="width"
-                      min="1"
-                      max="10"
-                    />
+                    <input type="range" id="lineWidth" name="width" />
                     <span id="lineWidthValue">2</span>
                   </div>
                 </div>
