@@ -226,6 +226,9 @@ button:hover {
   background: #f9f9f9;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+#control-container .readonly_field {
+  background-color: rgb(222, 239, 255);
+}
 #control-container .name-input-group {
   display: flex;
   justify-content: space-between;
@@ -333,10 +336,19 @@ button:hover {
   margin-top: 5px;
   display: none;
 }
-.formula {
+.formula_block {
   margin-bottom: 30px;
   border: 2px double black;
   padding: 10px !important;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.formula_block select {
+  font-size: 16px;
+  padding: 5px 10px;
+  width: 200px;
 }
 
 #control-buttons {

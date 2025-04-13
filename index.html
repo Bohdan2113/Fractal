@@ -23,7 +23,7 @@
             class="create-block-but"
             onclick="CreateProjectBut(FractalType.ALGEBRAICAL)"
           >
-            <p class="fractal-name text-edit">Agebraical fractal</p>
+            <p class="fractal-name text-edit">Algebraical fractal</p>
             <div class="create-fractal-plus">+</div>
           </button>
         </div>
@@ -50,21 +50,33 @@
         <div id="control-container">
           <div class="name-input-group input-group">
             <label>Type: </label>
-            <input type="text" id="fractal-type" name="type" readonly />
+            <input
+              type="text"
+              id="fractal-type"
+              class="readonly_field"
+              name="type"
+              readonly
+            />
           </div>
           <div class="name-input-group input-group">
             <label>Name: </label>
             <input type="text" id="fractal-name" name="type" />
           </div>
+
           <div id="params-container">
             <form id="params-form">
-              <div class="form-group Algebraical formula">
-                <label style="text-align: center"
-                  >Formula: ctg<sup>2</sup>(z) + c</label
-                >
+              <div class="form-group Algebraical formula_block">
+                <label for="formula">Formula:</label>
+                <select id="formula" name="formula" required>
+                  <option value="0">ctg²(z) + c</option>
+                  <option value="1">ctg(z²) + c</option>
+                </select>
               </div>
 
-              <div class="form-group Minkovskogo">
+              <div
+                class="form-group Minkovskogo"
+                title="Coords of fractal center"
+              >
                 <div class="input-group">
                   <div class="inner-form-group">
                     <label for="startX">X:</label>
@@ -79,7 +91,10 @@
                 <p class="errInput-message" id="error-message-startY"></p>
               </div>
 
-              <div class="form-group Algebraical">
+              <div
+                class="form-group Algebraical"
+                title="The pattern depends on these values"
+              >
                 <div class="input-group">
                   <div class="inner-form-group">
                     <label for="realC">Real c:</label>
@@ -99,7 +114,10 @@
                 <p class="errInput-message" id="error-message-imagC"></p>
               </div>
 
-              <div class="form-group Minkovskogo">
+              <div
+                class="form-group Minkovskogo"
+                title='Langth of square (original shape of "Fractal Minkovskogo") side'
+              >
                 <div class="input-group">
                   <label for="length">Line length:</label>
                   <input type="number" id="length" name="length" />
@@ -107,15 +125,21 @@
                 <p class="errInput-message" id="error-message-length"></p>
               </div>
 
-              <div class="form-group Algebraical">
+              <div
+                class="form-group Algebraical"
+                title="Escape radius (just enter something)"
+              >
                 <div class="input-group">
-                  <label for="bailout">Bailout:</label>
+                  <label for="bailout">Escape R:</label>
                   <input type="number" id="bailout" name="bailout" />
                 </div>
                 <p class="errInput-message" id="error-message-bailout"></p>
               </div>
 
-              <div class="form-group Algebraical">
+              <div
+                class="form-group Algebraical"
+                title="1-best fractal quality"
+              >
                 <div class="input-group">
                   <label for="resolution">Resolution:</label>
                   <input type="number" id="resolution" name="resolution" />
@@ -123,7 +147,10 @@
                 <p class="errInput-message" id="error-message-resolution"></p>
               </div>
 
-              <div class="form-group Algebraical Minkovskogo">
+              <div
+                class="form-group Algebraical Minkovskogo"
+                id="iterations_block"
+              >
                 <div class="input-group">
                   <label for="iterations">Iterations:</label>
                   <input type="number" id="iterations" name="iterations" />
@@ -131,15 +158,15 @@
                 <p class="errInput-message" id="error-message-iterations"></p>
               </div>
 
-              <div class="form-group Algebraical Minkovskogo">
+              <div class="form-group Algebraical Minkovskogo" id="color_block">
                 <div class="input-group">
                   <label for="color">Color:</label>
-                  <input type="color" id="color" name="color" />
+                  <input type="color" id="color" name="color" value="#000000" />
                 </div>
                 <p class="errInput-message" id="error-message-color"></p>
               </div>
 
-              <div class="form-group Minkovskogo">
+              <div class="form-group Minkovskogo" title="Rotate the fractal">
                 <div class="input-group">
                   <label for="angle">Angle:</label>
                   <div>
@@ -150,7 +177,7 @@
                 <p class="errInput-message" id="error-message-angle"></p>
               </div>
 
-              <div class="form-group Minkovskogo">
+              <div class="form-group Minkovskogo" title="Width of fractal lines">
                 <div class="input-group">
                   <label for="lineWidth">Line width:</label>
                   <div>

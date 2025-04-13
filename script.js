@@ -3,34 +3,36 @@ class Fractal {
     id,
     type,
     iterations,
+    color,
     unitCount = baseUnitCount,
     name = null,
     x = 0,
     y = 0,
     length = baseUnitCount,
-    color = "#000000",
     angle = 0,
     lineW = 1,
-    realC = 0,
-    imagC = 0,
-    bailout = 30,
-    resolution = 1
+    realC = -1.6,
+    imagC = 0.1,
+    bailout = 33,
+    resolution = 2,
+    formula = 0
   ) {
     this.id = id;
     this.type = type;
     this.iterations = iterations;
+    this.color = color;
     this.systemUnitCount = unitCount;
     this.name = name;
     this.x = x;
     this.y = y;
     this.length = length;
-    this.color = color;
     this.angle = angle;
     this.lineW = lineW;
     this.realC = realC;
     this.imagC = imagC;
     this.bailout = bailout;
     this.resolution = resolution;
+    this.formula = formula;
   }
 
   static copy(other) {
@@ -41,18 +43,19 @@ class Fractal {
       other.id,
       other.type,
       other.iterations,
+      other.color,
       other.systemUnitCount,
       other.name,
       other.x,
       other.y,
       other.length,
-      other.color,
       other.angle,
       other.lineW,
       other.realC,
       other.imagC,
       other.bailout,
-      other.resolution
+      other.resolution,
+      other.formula
     );
   }
   init(other) {
@@ -62,18 +65,19 @@ class Fractal {
     this.id = other.id;
     this.type = other.type;
     this.iterations = other.iterations;
+    this.color = other.color;
     this.systemUnitCount = other.systemUnitCount;
     this.name = other.name;
     this.x = other.x;
     this.y = other.y;
     this.length = other.length;
-    this.color = other.color;
     this.angle = other.angle;
     this.lineW = other.lineW;
     this.realC = other.realC;
     this.imagC = other.imagC;
     this.bailout = other.bailout;
     this.resolution = other.resolution;
+    this.formula = other.formula;
   }
 }
 class Point {
@@ -87,6 +91,12 @@ class Section {
     this.pStart = pStart;
     this.length = length;
     this.angle = angle;
+  }
+  get pEnd() {
+    return new Point(
+      this.pStart.x + this.length * Math.cos((this.angle * Math.PI) / 180),
+      this.pStart.y + this.length * Math.sin((this.angle * Math.PI) / 180)
+    );
   }
 }
 const FractalType = {
@@ -157,8 +167,10 @@ window.onload = function () {
       ChangeFractal();
     });
   });
+  $("#formula").addEventListener("input", (event) => {
+    ChangeFractal();
+  });
   $("#fractal-name").addEventListener("input", (event) => {
-    // const fractalName = $("#fractal-name").value;
     workFractal.name = event.target.value;
   });
 };
@@ -167,10 +179,21 @@ function CreateProjectBut(fractalType) {
   const lastfractalId = fractalList?.length ? fractalList.at(-1).id : -1;
 
   let iterations = 0;
-  if (fractalType === "Minkovskogo") iterations = 4;
-  else if (fractalType === "Algebraical") iterations = 100;
+  let color = "black";
+  if (fractalType === "Minkovskogo") {
+    iterations = 4;
+    color = "black";
+  } else if (fractalType === "Algebraical") {
+    iterations = 10;
+    color = "#e6ddee";
+  }
 
-  const newFractal = new Fractal(lastfractalId + 1, fractalType, iterations);
+  const newFractal = new Fractal(
+    lastfractalId + 1,
+    fractalType,
+    iterations,
+    color
+  );
   fractalList.push(newFractal);
   CreateProjectInstance(newFractal);
   ToLocalStorage(newFractal);
@@ -279,6 +302,10 @@ function FillFormValues(fractal) {
   $("#imagC").value = fractal.imagC;
   $("#bailout").value = fractal.bailout;
   $("#resolution").value = fractal.resolution;
+
+  const select = $("#formula");
+  select.value = fractal.formula;
+  select.dispatchEvent(new Event("change"));
 }
 function ReadFormValues(fractal) {
   const fractalName = $("#fractal-name").value;
@@ -295,6 +322,7 @@ function ReadFormValues(fractal) {
   fractal.imagC = parseFloat($("#imagC").value);
   fractal.bailout = parseFloat($("#bailout").value);
   fractal.resolution = parseInt($("#resolution").value);
+  fractal.formula = parseInt($("#formula").value);
 }
 function OpenProject(projectId_str) {
   const savedId = parseInt(projectId_str.match(/\d+/)[0], 10);
@@ -336,9 +364,13 @@ function SetBoundaries(form, type) {
   if (type === "Algebraical") {
     iterationsField.min = 1;
     iterationsField.max = 700;
+    $("#iterations_block").title = "Max iterations for each pixel";
+    $("#color_block").title = "Determines the color scheme (shades)";
   } else if (type === "Minkovskogo") {
     iterationsField.min = 0;
     iterationsField.max = 6;
+    $("#iterations_block").title = "Depth of fractal creation";
+    $("#color_block").title = "Fractal color";
   }
 
   startXField.min = -maxUnitCount;
@@ -829,18 +861,19 @@ function LoadFractals() {
         fractal.id,
         fractal.type,
         fractal.iterations,
+        fractal.color,
         fractal.systemUnitCount,
         fractal.name,
         fractal.x,
         fractal.y,
         fractal.length,
-        fractal.color,
         fractal.angle,
         fractal.lineW,
         fractal.realC,
         fractal.imagC,
         fractal.bailout,
-        fractal.resolution
+        fractal.resolution,
+        fractal.formula
       )
   );
 }
@@ -883,16 +916,11 @@ function DrawFractalMinkovskogo(canvas, fractal, scale) {
 
   function recursive(section, color, width, depth) {
     if (depth === 0) {
-      const pEnd = new Point(
-        section.pStart.x + section.length * cos(section.angle),
-        section.pStart.y + section.length * sin(section.angle)
-      );
-
       DrawLine(
         canvas,
         fractal.systemUnitCount,
         section.pStart,
-        pEnd,
+        section.pEnd,
         fractal.lineW,
         fractal.color
       );
@@ -963,9 +991,7 @@ function DrawFractalAlgebraical(canvas, fractal) {
   const ctx = canvas.getContext("2d");
   const box = GetCoordSystemProportions(canvas, fractal.systemUnitCount);
   const eps = 10e-5;
-
-  // console.log(box);
-  // return;
+  const formulaList = [formula_squrCtgZPlusC, formula_ctgSqurZPlusC];
 
   const top = parseInt(box.top);
   const bottom = parseInt(box.bottom);
@@ -984,6 +1010,7 @@ function DrawFractalAlgebraical(canvas, fractal) {
   const threshold = fractal.bailout;
   const step = fractal.resolution;
   const colorScheme = fractal.color;
+  const formula = formulaList[fractal.formula];
   console.log(colorScheme);
 
   const imgData = ctx.createImageData(width, height);
@@ -999,10 +1026,8 @@ function DrawFractalAlgebraical(canvas, fractal) {
       let i = 0;
       for (; i < maxIter; i++) {
         try {
-          z = myFormula(z, c);
-          // z = victorFormula(z, c);
+          z = formula(z, c);
         } catch (error) {
-          console.error(error.message);
           break;
         }
         if (Math.abs(z.re) > threshold || Math.abs(z.im) > threshold) break;
@@ -1024,14 +1049,14 @@ function DrawFractalAlgebraical(canvas, fractal) {
   ctx.putImageData(imgData, left, top);
 
   //Ітераційна формула
-  function myFormula(z, c) {
-    const ctgZ = ctgComplex(z); 
-    const squaredCtgZ = multiplyComplex(ctgZ, ctgZ); 
+  function formula_squrCtgZPlusC(z, c) {
+    const ctgZ = ctgComplex(z);
+    const squaredCtgZ = multiplyComplex(ctgZ, ctgZ);
     return addComplex(squaredCtgZ, c);
   }
-  function victorFormula(z, c) {
-    const squaredZ = multiplyComplex(z, z); 
-    const ctgSquaredZ = ctgComplex(squaredZ); 
+  function formula_ctgSqurZPlusC(z, c) {
+    const squaredZ = multiplyComplex(z, z);
+    const ctgSquaredZ = ctgComplex(squaredZ);
     return addComplex(ctgSquaredZ, c);
   }
 
@@ -1069,18 +1094,6 @@ function DrawFractalAlgebraical(canvas, fractal) {
     const kG = colorScheme.G;
     const kB = colorScheme.B;
     return { R: (t * kR) % 255, G: (t * kG) % 255, B: (t * kB) % 255 };
-
-    // const t = i / maxIter;
-    // const variation = 255;
-    // const colorScheme = parseHexColor(color);
-    // const R = colorScheme.R + Math.sin(t * Math.PI * 2) * variation;
-    // const G = colorScheme.G + Math.cos(t * Math.PI * 2) * variation;
-    // const B = colorScheme.B + Math.sin(t * Math.PI * 4 + 1) * variation;
-    // return {
-    //   R: Math.max(0, Math.min(255, Math.round(R))),
-    //   G: Math.max(0, Math.min(255, Math.round(G))),
-    //   B: Math.max(0, Math.min(255, Math.round(B))),
-    // };
   }
   function parseHexColor(hex) {
     // Прибираємо "#" якщо є
