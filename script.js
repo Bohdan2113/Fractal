@@ -11,10 +11,10 @@ class Fractal {
     length = baseUnitCount,
     angle = 0,
     lineW = 1,
-    realC = -1.6,
-    imagC = 0.1,
-    bailout = 33,
-    resolution = 2,
+    realC = 0,
+    imagC = 0,
+    bailout = 30,
+    resolution = 1,
     formula = 0
   ) {
     this.id = id;
@@ -991,7 +991,20 @@ function DrawFractalAlgebraical(canvas, fractal) {
   const ctx = canvas.getContext("2d");
   const box = GetCoordSystemProportions(canvas, fractal.systemUnitCount);
   const eps = 10e-5;
-  const formulaList = [formula_squrCtgZPlusC, formula_ctgSqurZPlusC];
+  const formulaList = [
+    formula_squrCtgZPlusC,
+    formula_ctgSqurZPlusC,
+    formula_zMultZPlusC,
+    formula_zMultSinZPlusC,
+    formula_zMultCosZPlusC,
+    formula_ZeFourPlusC,
+    formula_ZeThreePlusC,
+    formula_sinZMultCosZPlusC,
+    formula_shZPlusC,
+    formula_tgSqurZPlusC,
+    formula_chZPlusC,
+    formula_sinSqurZPlusC,
+  ];
 
   const top = parseInt(box.top);
   const bottom = parseInt(box.bottom);
@@ -1011,7 +1024,6 @@ function DrawFractalAlgebraical(canvas, fractal) {
   const step = fractal.resolution;
   const colorScheme = fractal.color;
   const formula = formulaList[fractal.formula];
-  console.log(colorScheme);
 
   const imgData = ctx.createImageData(width, height);
   const data = imgData.data;
@@ -1045,7 +1057,6 @@ function DrawFractalAlgebraical(canvas, fractal) {
       }
     }
   }
-
   ctx.putImageData(imgData, left, top);
 
   //Ітераційна формула
@@ -1059,30 +1070,106 @@ function DrawFractalAlgebraical(canvas, fractal) {
     const ctgSquaredZ = ctgComplex(squaredZ);
     return addComplex(ctgSquaredZ, c);
   }
+  function formula_zMultZPlusC(z, c) {
+    const squaredZ = multiplyComplex(z, z);
+    return addComplex(squaredZ, c);
+  }
+  function formula_zMultSinZPlusC(z, c) {
+    const sinZ = sinComplex(z);
+    const res = multiplyComplex(z, sinZ);
+    return addComplex(res, c);
+  }
+  function formula_zMultCosZPlusC(z, c) {
+    const cosZ = cosComplex(z);
+    const res = multiplyComplex(z, cosZ);
+    return addComplex(res, c);
+  }
+  function formula_ZeFourPlusC(z, c) {
+    let res = multiplyComplex(z, z);
+    res = multiplyComplex(res, z);
+    res = multiplyComplex(res, z);
+    return addComplex(res, c);
+  }
+  function formula_ZeThreePlusC(z, c) {
+    let res = multiplyComplex(z, z);
+    res = multiplyComplex(res, z);
+    return addComplex(res, c);
+  }
+  function formula_sinZMultCosZPlusC(z, c) {
+    const sinZ = sinComplex(z);
+    const cosZ = cosComplex(z);
+    const res = multiplyComplex(sinZ, cosZ);
+    return addComplex(res, c);
+  }
+  function formula_shZPlusC(z, c) {
+    const res = shComplex(z);
+    return addComplex(res, c);
+  }
+  function formula_tgSqurZPlusC(z, c) {
+    const squaredZ = multiplyComplex(z, z);
+    const tgSquaredZ = tgComplex(squaredZ);
+    return addComplex(tgSquaredZ, c);
+  }
+  function formula_chZPlusC(z, c) {
+    const res = chComplex(z);
+    return addComplex(res, c);
+  }
+  function formula_sinSqurZPlusC(z, c) {
+    const squaredZ = multiplyComplex(z, z);
+    const sinSquaredZ = sinComplex(squaredZ);
+    return addComplex(sinSquaredZ, c);
+  }
 
-  // Додавання комплексних чисел
+  // Helper functions for complex number operations
   function addComplex(a, b) {
     return { re: a.re + b.re, im: a.im + b.im };
   }
-  // Функція для обчислення ctg(z)
-  function ctgComplex(a) {
-    const tanZ = tanComplex(a);
-    if (Math.abs(tanZ.im) < eps || Math.abs(tanZ.re) < eps)
-      throw new Error("tan(z) is too close to zero");
-    return { re: 1 / tanZ.re, im: -1 / tanZ.im };
-  }
-  // Множення комплексних чисел
   function multiplyComplex(a, b) {
     return {
       re: a.re * b.re - a.im * b.im,
       im: a.re * b.im + a.im * b.re,
     };
   }
-  // Тангенс комплексного числа
-  function tanComplex(a) {
-    const real = Math.tan(a.re) * Math.cosh(a.im);
-    const imaginary = Math.sinh(a.im) / Math.cos(a.re);
-    return { re: real, im: imaginary };
+  function divideComplex(a, b) {
+    const denominator = b.re * b.re + b.im * b.im;
+    return {
+      re: (a.re * b.re + a.im * b.im) / denominator,
+      im: (a.im * b.re - a.re * b.im) / denominator,
+    };
+  }
+  function sinComplex(a) {
+    return {
+      re: Math.sin(a.re) * Math.cosh(a.im),
+      im: Math.cos(a.re) * Math.sinh(a.im),
+    };
+  }
+  function cosComplex(a) {
+    return {
+      re: Math.cos(a.re) * Math.cosh(a.im),
+      im: -Math.sin(a.re) * Math.sinh(a.im),
+    };
+  }
+  function ctgComplex(a) {
+    const sinZ = sinComplex(a);
+    const cosZ = cosComplex(a);
+    return divideComplex(cosZ, sinZ);
+  }
+  function tgComplex(a) {
+    const sinZ = sinComplex(a);
+    const cosZ = cosComplex(a);
+    return divideComplex(sinZ, cosZ);
+  }
+  function shComplex(a) {
+    return {
+      re: Math.sinh(a.re) * Math.cos(a.im),
+      im: Math.cosh(a.re) * Math.sin(a.im),
+    };
+  }
+  function chComplex(a) {
+    return {
+      re: Math.cosh(a.re) * Math.cos(a.im),
+      im: Math.sinh(a.re) * Math.sin(a.im),
+    };
   }
 
   function GetColor(i, color, maxIter) {

@@ -70,6 +70,16 @@
                 <select id="formula" name="formula" required>
                   <option value="0">ctg²(z) + c</option>
                   <option value="1">ctg(z²) + c</option>
+                  <option value="2">z² + c</option>
+                  <option value="3">z*sin(z) + c</option>
+                  <option value="4">z*cos(z) + c</option>
+                  <option value="5">z⁴ + c</option>
+                  <option value="6">z³ + c</option>
+                  <option value="7">sin(z)*cos(z) + c</option>
+                  <option value="8">sh(z) + c</option>
+                  <option value="9">tg(z²) + c</option>
+                  <option value="10">ch(z) + c</option>
+                  <option value="11">sin(z)² + c</option>
                 </select>
               </div>
 
@@ -177,7 +187,10 @@
                 <p class="errInput-message" id="error-message-angle"></p>
               </div>
 
-              <div class="form-group Minkovskogo" title="Width of fractal lines">
+              <div
+                class="form-group Minkovskogo"
+                title="Width of fractal lines"
+              >
                 <div class="input-group">
                   <label for="lineWidth">Line width:</label>
                   <div>
